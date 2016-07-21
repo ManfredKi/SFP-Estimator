@@ -9,6 +9,9 @@ TEMPLATE = app
 CONFIG  += O3
 CONFIG  += c++11
 
+QMAKE_CXXFLAGS += -std=c++11
+
+
 HEADERS += \
     src/roi.h \
     src/qtfiles.h \
@@ -32,9 +35,12 @@ SOURCES += \
     src/threadsavequeue.cpp
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../GnuWin32/lib/ -llibtiff
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../GnuWin32/lib/ -llibtiff
-else:unix: LIBS += -L$$PWD/../../../../../GnuWin32/lib/ -llibtiff
+win32:LIBS += -Lc:/GnuWin32/lib/ -llibtiff
+else:unix: LIBS += -L/home/kirchgessner/libtiff/libtiff -ltiff
 
-INCLUDEPATH += $$PWD/../../../../../GnuWin32/include
-DEPENDPATH += $$PWD/../../../../../GnuWin32/include
+win32:INCLUDEPATH += $$PWD/../../../../../GnuWin32/include
+else:unix:INCLUDEPATH += /home/kirchgessner/libtiff/libtiff
+
+win32:DEPENDPATH += $$PWD/../../../../../GnuWin32/include
+else:unix:DEPENDPATH += /home/kirchgessner/libtiff/libtiff
+
