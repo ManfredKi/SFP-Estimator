@@ -471,9 +471,10 @@ void ImageDrawer::open()
     if (!fileName.isEmpty()) {
       imgName = fileName;
       fileLbl->setText(fileName);
+      loadImage();
+    }else{
+      qDebug() << "ERROR! No Background image found!!";
     }
-
-    loadImage();
 }
 
 void ImageDrawer::open(const QString & fileName)
