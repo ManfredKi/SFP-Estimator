@@ -478,9 +478,9 @@ void Estimator::printResults(Roi::Result * res)
 
   challengeOut << res->mx      << ";";
   challengeOut << res->my      << ";";
+  challengeOut << 0            << ";";
   challengeOut << res->sliceNr << ";";
-  challengeOut << res->gesQ    << ";";
-  challengeOut << 0            << "\n";
+  challengeOut << res->gesQ    << "\n";
 }
 
 void Estimator::estimateGenerate()
