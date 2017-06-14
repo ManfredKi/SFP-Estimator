@@ -207,6 +207,7 @@ void Estimator::generateFirstBGImage()
 
 void Estimator::generateDiffImages(double bgWeight)
 {
+  toFilterQueue.signUp();
   toFilterQueue.setThreashold(dimZ/10);
 
   QTextStream out(&loggerFile);
@@ -229,7 +230,7 @@ void Estimator::generateDiffImages(double bgWeight)
 
   out << "Estimator "<< id << "  Elapsed time " << globalWatch.elapsed() << "  Background subtracting - num frames: " <<dimZ-1 << "\n";
 
-  toFilterQueue.finish(dimZ);
+  toFilterQueue.finish();
 
   delete tiffStack;
 }
@@ -237,7 +238,7 @@ void Estimator::generateDiffImages(double bgWeight)
 void Estimator::filter()
 {
   int sliceNr = -1;
-
+  toFindQueue.signUp();
   toFindQueue.setThreashold(dimZ/10);
 
   QTextStream out(&loggerFile);
@@ -273,7 +274,7 @@ void Estimator::filter()
   qDebug() << globalWatch.elapsed() << "Estimator"<< id <<"Last Image Filtered" <<sliceNr;
 
   toFilterQueue.close();  
-  toFindQueue.finish(toFilterQueue.getPops());
+  toFindQueue.finish();
 
 
 #ifdef LOG
@@ -297,7 +298,9 @@ void Estimator::find()
 {
   int padding = 3;
 
+  roiQueue.signUp();
   roiQueue.setThreashold(3000);
+  toSaveQueue.signUp();
   toSaveQueue.setThreashold(dimZ/10);
 
   QTextStream out(&loggerFile);
@@ -341,14 +344,14 @@ void Estimator::find()
   qDebug() << globalWatch.elapsed() << "Estimator" << id << "Last image Searched";
 
   toFindQueue.close();
-  roiQueue.finish(-1);
+  roiQueue.finish();
 
 #ifdef LOG
   out << "Estimator " << id << "  Elapsed time " << globalWatch.elapsed() <<  "  Searching spots - num frames: "<< toFindQueue.getNumHandles() << "\n";
 #endif
 
 #ifdef SAVE
-  toSaveQueue.finish(toFindQueue.getPops());
+  toSaveQueue.finish();
 #endif
 
 #ifdef CHAIN
@@ -420,6 +423,7 @@ void Estimator::separate(int posX, int posY, int sliceNr, const uint16_t *const*
 void Estimator::estimate()
 {
 
+  resultQueue.signUp();
   resultQueue.setThreashold(1000);
 
   QTextStream out(&loggerFile);
@@ -446,7 +450,7 @@ void Estimator::estimate()
   }
 
   roiQueue.close();
-  resultQueue.finish(roiQueue.getPops());
+  resultQueue.finish();
 
 #ifdef CHAIN
   generateSpotFromPendingResults();
@@ -485,6 +489,7 @@ void Estimator::printResults(Roi::Result * res)
 
 void Estimator::estimateGenerate()
 {
+  toPrintQueue.signUp();
   toPrintQueue.setThreashold(100);
 
   QTextStream out(&loggerFile);
@@ -514,7 +519,7 @@ void Estimator::estimateGenerate()
   }
 
   roiQueue.close();
-  toPrintQueue.finish(roiQueue.getPops());
+  toPrintQueue.finish();
 
 #ifdef CHAIN
 #ifdef SAVE
@@ -567,6 +572,8 @@ void Estimator::generateSpotFromPendingResults()
   out << globalWatch.elapsed() <<" "<< id <<" generateSpot sleep " << resultQueue.size() << " " << resultQueue.getNumHandles() << "\n";
 #endif
 
+  toPrintQueue.signUp();
+
   Roi::Result * res = nullptr;
 
   while(resultQueue.pop_front(res))
@@ -580,7 +587,7 @@ void Estimator::generateSpotFromPendingResults()
   }
 
   resultQueue.close();
-  toPrintQueue.finish(resultQueue.getPops());
+  toPrintQueue.finish();
 
 #ifdef CHAIN
 #ifdef SAVE

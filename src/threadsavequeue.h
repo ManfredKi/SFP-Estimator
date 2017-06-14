@@ -23,6 +23,7 @@ class ThreadSaveQueue : public std::queue<Type *>
                         m_popCnt(0),
                         m_done(false),
                         m_finish(false),
+                        m_lockedUsers(0),
                         m_threashold(0)
     {}
 
@@ -118,27 +119,27 @@ class ThreadSaveQueue : public std::queue<Type *>
 
     bool isDone(){return m_done;}
 
-    void finish(int number){
+    void signUp(){
+      m_lockedUsers++;
+    }
 
+    void finish(){
+      m_lockedUsers--;
       setThreashold(0);
-      if((int)m_pushCnt == number){
+
+      if(m_lockedUsers<=0){
         m_finish = true;
 #ifdef DEBUG
         std::cout << "QUEUE is set finished" << std::endl;
 #endif
-      }
-      if(number < 0){
-        m_finish = true;
-#ifdef DEBUG
-        std::cout << "QUEUE is set finished with <0" << std::endl;
-#endif
-      }
+      }      
       m_waitCondition.notify_all();
     }
 
     void wake(){m_waitCondition.notify_all();}
 
     void close(){
+      m_lockedUsers = 0;
       m_done = true;
       setThreashold(0);
       m_waitCondition.notify_all();
@@ -151,6 +152,7 @@ class ThreadSaveQueue : public std::queue<Type *>
     std::mutex m_mt;
     std::atomic<bool> m_done;
     std::atomic<bool> m_finish;
+    std::atomic<int> m_lockedUsers;
     std::atomic<uint32_t> m_threashold;
     uint32_t m_thld;
 };
