@@ -6,7 +6,7 @@ QT += printsupport
 
 TARGET   = SFPEstimator
 TEMPLATE = app
-CONFIG  += O3
+#CONFIG  += O3
 CONFIG  += c++11
 
 QMAKE_CXXFLAGS += -std=c++11
@@ -35,12 +35,6 @@ SOURCES += \
     src/threadsavequeue.cpp
 
 
-win32:LIBS += -Lc:/GnuWin32/lib/ -llibtiff
-else:unix: LIBS += -L/home/kirchgessner/libtiff/libtiff -ltiff
 
-win32:INCLUDEPATH += $$PWD/../../../../../GnuWin32/include
-else:unix:INCLUDEPATH += /home/kirchgessner/libtiff/libtiff
 
-win32:DEPENDPATH += $$PWD/../../../../../GnuWin32/include
-else:unix:DEPENDPATH += /home/kirchgessner/libtiff/libtiff
 
